@@ -6,18 +6,22 @@ import Categories from "../components/Categories";
 import PizzaBlock from "../components/PizzaBlock";
 import Sort from "../components/Sort";
 import { Pagination } from "../components/Pagination";
-import { setCategoryId, setSort } from "../redux/slices/filterSlice";
+import {
+  setCategoryId,
+  setCurrentPage,
+  setSort,
+} from "../redux/slices/filterSlice";
 
 function Home() {
   const url = "https://5970c13810cdc70011cfc08e.mockapi.io/items?";
   const categoryId = useSelector((state) => state.filters.categoryId);
   const searchValue = useSelector((state) => state.filters.searchValue);
+  const currentPage = useSelector((state) => state.filters.currentPage);
   const sort = useSelector((state) => state.filters.sort);
   const dispatch = useDispatch();
 
   const [items, setItems] = useState([]);
   const [isLoadind, setIsLoadind] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setIsLoadind(true);
@@ -56,7 +60,7 @@ function Home() {
       </div>
       <Pagination
         currentPage={currentPage}
-        onChangePage={(number) => setCurrentPage(number)}
+        onChangePage={(number) => dispatch(setCurrentPage(number))}
       />
     </div>
   );
