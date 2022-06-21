@@ -6,28 +6,24 @@ import Categories from "../components/Categories";
 import PizzaBlock from "../components/PizzaBlock";
 import Sort from "../components/Sort";
 import { Pagination } from "../components/Pagination";
-import {
-  setCategoryId,
-  setCurrentPage,
-  setSort,
-} from "../redux/slices/filterSlice";
+import { setCategoryId, setCurrentPage } from "../redux/slices/filterSlice";
 
 function Home() {
   const url = "https://5970c13810cdc70011cfc08e.mockapi.io/items?";
   const categoryId = useSelector((state) => state.filters.categoryId);
   const searchValue = useSelector((state) => state.filters.searchValue);
   const currentPage = useSelector((state) => state.filters.currentPage);
-  const sort = useSelector((state) => state.filters.sort);
+  const sortType = useSelector((state) => state.filters.sort.sortProperty);
   const dispatch = useDispatch();
 
   const [items, setItems] = useState([]);
-  const [isLoadind, setIsLoadind] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoadind(true);
+    setIsLoading(true);
 
-    const sortBy = sort.sortProperty.replace("-", "");
-    const order = sort.sortProperty.includes("-") ? "asc" : "desc";
+    const sortBy = sortType.replace("-", "");
+    const order = sortType.includes("-") ? "asc" : "desc";
     const category = categoryId > 0 ? `category=${categoryId}` : "";
     const search = searchValue ? `search=${searchValue}` : "";
 
@@ -37,11 +33,11 @@ function Home() {
       .then((res) => res.json())
       .then((arr) => {
         setItems(arr);
-        setIsLoadind(false);
+        setIsLoading(false);
       });
 
     window.scrollTo(0, 0);
-  }, [categoryId, sort, currentPage, searchValue]);
+  }, [categoryId, sortType, currentPage, searchValue]);
 
   return (
     <div className="container">
@@ -50,11 +46,11 @@ function Home() {
           value={categoryId}
           onChangeCategory={(id) => dispatch(setCategoryId(id))}
         />
-        <Sort value={sort} onChangeSort={(id) => dispatch(setSort(id))} />
+        <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
       <div className="content__items">
-        {isLoadind
+        {isLoading
           ? [...new Array(6)].map((_, i) => <Skeleton key={i} />)
           : items.map((item) => <PizzaBlock pizza={item} key={item.id} />)}
       </div>
