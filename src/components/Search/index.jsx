@@ -1,10 +1,12 @@
-import React, { useContext } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import styles from "./Search.module.scss";
-import { SearchContext } from "../../App";
+import { setSearchValue } from "../../redux/slices/filterSlice";
 
 export const Search = () => {
-  const { searchValue, setSearchValue } = useContext(SearchContext);
+  const searchValue = useSelector((state) => state.filters.searchValue);
+  const dispatch = useDispatch();
 
   return (
     <div className={styles.root}>
@@ -45,7 +47,7 @@ export const Search = () => {
       <input
         // ref={inputRef}
         value={searchValue}
-        onChange={(event) => setSearchValue(event.target.value)}
+        onChange={(event) => dispatch(setSearchValue(event.target.value))}
         className={styles.input}
         placeholder="Поиск пиццы..."
       />

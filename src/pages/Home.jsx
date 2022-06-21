@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Skeleton } from "../components/PizzaBlock/Skeleton";
@@ -6,17 +6,15 @@ import Categories from "../components/Categories";
 import PizzaBlock from "../components/PizzaBlock";
 import Sort from "../components/Sort";
 import { Pagination } from "../components/Pagination";
-import { SearchContext } from "../App";
 import { setCategoryId, setSort } from "../redux/slices/filterSlice";
 
 function Home() {
   const url = "https://5970c13810cdc70011cfc08e.mockapi.io/items?";
   const categoryId = useSelector((state) => state.filters.categoryId);
-  // const searchValue = useSelector((state) => state.filters.searchValue);
+  const searchValue = useSelector((state) => state.filters.searchValue);
   const sort = useSelector((state) => state.filters.sort);
   const dispatch = useDispatch();
 
-  const { searchValue } = useContext(SearchContext);
   const [items, setItems] = useState([]);
   const [isLoadind, setIsLoadind] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
