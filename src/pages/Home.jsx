@@ -6,25 +6,40 @@ import PizzaBlock from "../components/PizzaBlock";
 import Sort from "../components/Sort";
 
 function Home() {
-  const url = "https://5970c13810cdc70011cfc08e.mockapi.io/items";
+  const url = "https://5970c13810cdc70011cfc08e.mockapi.io/items?";
   const [items, setItems] = useState([]);
   const [isLoadind, setIsLoadind] = useState(true);
+  const [categoryId, setCategoryId] = useState(0);
+  const [sortType, setSortType] = useState({
+    name: "популярности",
+    sortProperty: "rating",
+  });
 
   useEffect(() => {
-    fetch(url)
+    setIsLoadind(true);
+
+    const sortBy = sortType.sortProperty.replace("-", "");
+    const order = sortType.sortProperty.includes("-") ? "asc" : "desc";
+    const category = categoryId > 0 ? `category=${categoryId}` : "";
+
+    fetch(`${url}${category}&sortBy=${sortBy}&order=${order}`)
       .then((res) => res.json())
       .then((arr) => {
         setItems(arr);
         setIsLoadind(false);
       });
+
     window.scrollTo(0, 0);
-  }, []);
+  }, [categoryId, sortType]);
 
   return (
     <div className="container">
       <div className="content__top">
-        <Categories />
-        <Sort />
+        <Categories
+          value={categoryId}
+          onChangeCategory={(id) => setCategoryId(id)}
+        />
+        <Sort value={sortType} onChangeSort={(id) => setSortType(id)} />
       </div>
       <h2 className="content__title">Все пиццы</h2>
       <div className="content__items">
