@@ -1,30 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import qs from "qs";
 
 import { Skeleton } from "../components/PizzaBlock/Skeleton";
+import { Pagination } from "../components/Pagination";
 import Categories from "../components/Categories";
 import PizzaBlock from "../components/PizzaBlock";
-import Sort from "../components/Sort";
-import { Pagination } from "../components/Pagination";
-import { setCategoryId, setCurrentPage } from "../redux/slices/filterSlice";
+import Sort, { sortList } from "../components/Sort";
+import {
+  setCategoryId,
+  setCurrentPage,
+  setFilters,
+} from "../redux/slices/filterSlice";
 
 function Home() {
-  const url = "https://5970c13810cdc70011cfc08e.mockapi.io/items?";
-  const categoryId = useSelector((state) => state.filters.categoryId);
-  const searchValue = useSelector((state) => state.filters.searchValue);
-  const currentPage = useSelector((state) => state.filters.currentPage);
-  const sortType = useSelector((state) => state.filters.sort.sortProperty);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isSearch = useRef(false);
+  const isMounted = useRef(false);
+  const url = "https://5970c13810cdc70011cfc08e.mockapi.io/items?";
+
+  const { categoryId, searchValue, currentPage, sort } = useSelector(
+    (state) => state.filters
+  );
 
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    setIsLoading(true);
-
-    const sortBy = sortType.replace("-", "");
-    const order = sortType.includes("-") ? "asc" : "desc";
+  const getPizzas = () => {
+    const sortBy = sort.sortProperty.replace("-", "");
+    const order = sort.sortProperty.includes("-") ? "asc" : "desc";
     const category = categoryId > 0 ? `category=${categoryId}` : "";
     const search = searchValue ? `search=${searchValue}` : "";
 
@@ -36,9 +43,51 @@ function Home() {
         setItems(res.data);
         setIsLoading(false);
       });
+  };
 
+  useEffect(() => {
+    if (isMounted.current) {
+      const params = {
+        sortProperty: sort.sortProperty,
+        categoryId,
+        currentPage,
+      };
+      const queryString = qs.stringify(params);
+
+      navigate(`/?${queryString}`);
+    }
+
+    isMounted.current = true;
+  }, [categoryId, sort.sortProperty, currentPage]);
+
+  useEffect(() => {
+    if (window.location.search) {
+      const params = qs.parse(window.location.search.substring(1));
+      const sort = sortList.find(
+        (obj) => obj.sortProperty === params.sortProperty
+      );
+
+      dispatch(
+        setFilters({
+          ...params,
+          sort: sort || sortList[0],
+        })
+      );
+
+      isSearch.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
     window.scrollTo(0, 0);
-  }, [categoryId, sortType, currentPage, searchValue]);
+
+    if (!isSearch.current) {
+      setIsLoading(true);
+      getPizzas();
+    }
+
+    isSearch.current = false;
+  }, [categoryId, sort.sortProperty, currentPage, searchValue]);
 
   return (
     <div className="container">
