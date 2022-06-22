@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import styles from "./Search.module.scss";
@@ -7,6 +7,13 @@ import { setSearchValue } from "../../redux/slices/filterSlice";
 export const Search = () => {
   const searchValue = useSelector((state) => state.filters.searchValue);
   const dispatch = useDispatch();
+
+  const inputRef = useRef(null);
+
+  const onClickClear = () => {
+    dispatch(setSearchValue(""));
+    inputRef.current?.focus();
+  };
 
   return (
     <div className={styles.root}>
@@ -45,7 +52,7 @@ export const Search = () => {
         />
       </svg>
       <input
-        // ref={inputRef}
+        ref={inputRef}
         value={searchValue}
         onChange={(event) => dispatch(setSearchValue(event.target.value))}
         className={styles.input}
@@ -53,7 +60,7 @@ export const Search = () => {
       />
       {searchValue && (
         <svg
-          // onClick={setSearchValue("dfds")}
+          onClick={onClickClear}
           className={styles.clearIcon}
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
