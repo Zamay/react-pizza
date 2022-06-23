@@ -1,18 +1,40 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem } from "../../redux/slices/cartSlice";
 
-function PizzaBlock({ pizza }) {
+function PizzaBlock({ id, imageUrl, title, types, sizes, price }) {
+  const dispatch = useDispatch();
+  const cartItem = useSelector((state) =>
+    state.cart.items.find((obj) => obj.id === id)
+  );
+
+  const addedCount = cartItem ? cartItem.count : 0;
+
   const [activeType, setActiveType] = useState(0);
   const [activeSize, setActiveSize] = useState(0);
   const typeName = ["Тонкое", "Традиционное"];
 
+  const onClickAdd = () => {
+    const item = {
+      id,
+      imageUrl,
+      title,
+      price,
+      type: typeName[activeType],
+      size: sizes[activeSize],
+    };
+
+    dispatch(addItem(item));
+  };
+
   return (
     <div className="pizza-block-wrapper">
       <div className="pizza-block">
-        <img className="pizza-block__image" src={pizza.imageUrl} alt="Pizza" />
-        <h4 className="pizza-block__title">{pizza.title}</h4>
+        <img className="pizza-block__image" src={imageUrl} alt="Pizza" />
+        <h4 className="pizza-block__title">{title}</h4>
         <div className="pizza-block__selector">
           <ul>
-            {pizza.types.map((type, i) => (
+            {types.map((type, i) => (
               <li
                 className={activeType === i ? "active" : ""}
                 key={i}
@@ -23,7 +45,7 @@ function PizzaBlock({ pizza }) {
             ))}
           </ul>
           <ul>
-            {pizza.sizes.map((size, i) => (
+            {sizes.map((size, i) => (
               <li
                 className={activeSize === i ? "active" : ""}
                 key={i}
@@ -35,8 +57,11 @@ function PizzaBlock({ pizza }) {
           </ul>
         </div>
         <div className="pizza-block__bottom">
-          <div className="pizza-block__price">от {pizza.price} </div>
-          <div className="button button--outline button--add">
+          <div className="pizza-block__price">от {price} </div>
+          <button
+            onClick={onClickAdd}
+            className="button button--outline button--add"
+          >
             <svg
               width="12"
               height="12"
@@ -50,8 +75,8 @@ function PizzaBlock({ pizza }) {
               />
             </svg>
             <span>Добавить</span>
-            <i>2</i>
-          </div>
+            {cartItem && <i>{addedCount}</i>}
+          </button>
         </div>
       </div>
     </div>

@@ -102,7 +102,7 @@ function Home() {
       <div className="content__items">
         {isLoading
           ? [...new Array(6)].map((_, i) => <Skeleton key={i} />)
-          : items.map((item) => <PizzaBlock pizza={item} key={item.id} />)}
+          : items.map((item) => <PizzaBlock {...item} key={item.id} />)}
       </div>
       <Pagination
         currentPage={currentPage}
