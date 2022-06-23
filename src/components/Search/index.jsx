@@ -1,18 +1,18 @@
-import React, { useCallback, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import debounce from "lodash.debounce";
+import React, { useCallback, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import debounce from 'lodash.debounce';
 
-import styles from "./Search.module.scss";
-import { setSearchValue } from "../../redux/slices/filterSlice";
+import styles from './Search.module.scss';
+import { setSearchValue } from '../../redux/slices/filterSlice';
 
 export const Search = () => {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
   const dispatch = useDispatch();
   const inputRef = useRef(null);
 
   const onClickClear = () => {
-    dispatch(setSearchValue(""));
-    setValue("");
+    dispatch(setSearchValue(''));
+    setValue('');
     inputRef.current?.focus();
   };
 
@@ -20,7 +20,7 @@ export const Search = () => {
     debounce((str) => {
       dispatch(setSearchValue(str));
     }, 350),
-    []
+    [],
   );
 
   const onChangeInput = (event) => {
@@ -36,8 +36,7 @@ export const Search = () => {
         id="EditableLine"
         version="1.1"
         viewBox="0 0 32 32"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+        xmlns="http://www.w3.org/2000/svg">
         <circle
           cx="14"
           cy="14"
@@ -76,8 +75,7 @@ export const Search = () => {
           onClick={onClickClear}
           className={styles.clearIcon}
           viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+          xmlns="http://www.w3.org/2000/svg">
           <path d="M10 8.586L2.929 1.515 1.515 2.929 8.586 10l-7.071 7.071 1.414 1.414L10 11.414l7.071 7.071 1.414-1.414L11.414 10l7.071-7.071-1.414-1.414L10 8.586z" />
         </svg>
       )}

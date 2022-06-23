@@ -1,19 +1,20 @@
-import { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import qs from "qs";
+import { useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import qs from 'qs';
 
-import { Skeleton } from "../components/PizzaBlock/Skeleton";
-import { Pagination } from "../components/Pagination";
-import Categories from "../components/Categories";
-import PizzaBlock from "../components/PizzaBlock";
-import Sort, { sortList } from "../components/Sort";
+import { Skeleton } from '../components/PizzaBlock/Skeleton';
+import { Pagination } from '../components/Pagination';
+import Categories from '../components/Categories';
+import PizzaBlock from '../components/PizzaBlock';
+import Sort, { sortList } from '../components/Sort';
 import {
+  selectFilter,
   setCategoryId,
   setCurrentPage,
   setFilters,
-} from "../redux/slices/filterSlice";
-import { fetchPizzas } from "../redux/slices/pizzaSlice";
+} from '../redux/slices/filterSlice';
+import { fetchPizzas, selectPizzaData } from '../redux/slices/pizzaSlice';
 
 function Home() {
   const dispatch = useDispatch();
@@ -21,10 +22,8 @@ function Home() {
   const isSearch = useRef(false);
   const isMounted = useRef(false);
 
-  const { categoryId, searchValue, currentPage, sort } = useSelector(
-    (state) => state.filters
-  );
-  const { items, status } = useSelector((state) => state.pizza);
+  const { items, status } = useSelector(selectPizzaData);
+  const { categoryId, searchValue, currentPage, sort } = useSelector(selectFilter);
 
   const onChangeCategory = (idx) => {
     dispatch(setCategoryId(idx));
@@ -35,10 +34,10 @@ function Home() {
   };
 
   const getPizzas = () => {
-    const sortBy = sort.sortProperty.replace("-", "");
-    const order = sort.sortProperty.includes("-") ? "asc" : "desc";
-    const category = categoryId > 0 ? `${categoryId}` : "";
-    const search = searchValue ? `${searchValue}` : "";
+    const sortBy = sort.sortProperty.replace('-', '');
+    const order = sort.sortProperty.includes('-') ? 'asc' : 'desc';
+    const category = categoryId > 0 ? String(categoryId) : '';
+    const search = searchValue;
 
     dispatch(
       fetchPizzas({
@@ -47,7 +46,7 @@ function Home() {
         category,
         search,
         currentPage,
-      })
+      }),
     );
   };
 
@@ -69,15 +68,13 @@ function Home() {
   useEffect(() => {
     if (window.location.search) {
       const params = qs.parse(window.location.search.substring(1));
-      const sort = sortList.find(
-        (obj) => obj.sortProperty === params.sortProperty
-      );
+      const sort = sortList.find((obj) => obj.sortProperty === params.sortProperty);
 
       dispatch(
         setFilters({
           ...params,
           sort: sort || sortList[0],
-        })
+        }),
       );
 
       isSearch.current = true;
@@ -95,9 +92,7 @@ function Home() {
   }, [categoryId, sort.sortProperty, currentPage, searchValue]);
 
   const pizzas = items.map((item) => <PizzaBlock key={item.id} {...item} />);
-  const skeletons = [...new Array(6)].map((_, index) => (
-    <Skeleton key={index} />
-  ));
+  const skeletons = [...new Array(6)].map((_, index) => <Skeleton key={index} />);
 
   return (
     <div className="container">
@@ -106,18 +101,13 @@ function Home() {
         <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      {status === "error" ? (
+      {status === 'error' ? (
         <div className="content__error-info">
           <h2>Произошла ошибка 😕</h2>
-          <p>
-            К сожалению, не удалось получить питсы. Попробуйте повторить попытку
-            позже.
-          </p>
+          <p>К сожалению, не удалось получить питсы. Попробуйте повторить попытку позже.</p>
         </div>
       ) : (
-        <div className="content__items">
-          {status === "loading" ? skeletons : pizzas}
-        </div>
+        <div className="content__items">{status === 'loading' ? skeletons : pizzas}</div>
       )}
 
       <Pagination currentPage={currentPage} onChangePage={onChangePage} />
