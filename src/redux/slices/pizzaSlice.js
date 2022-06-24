@@ -3,15 +3,23 @@ import axios from 'axios';
 
 export const fetchPizzas = createAsyncThunk('pizza/fetchPizzasStatus', async (params) => {
   const { sortBy, order, category, search, currentPage } = params;
+  const paramsForMockapi = category
+    ? {
+        page: currentPage,
+        limit: 4,
+        category,
+        sortBy,
+        order,
+      }
+    : {
+        page: currentPage,
+        limit: 4,
+        sortBy,
+        order,
+        search,
+      };
   const { data } = await axios.get(`https://5970c13810cdc70011cfc08e.mockapi.io/items`, {
-    params: {
-      page: currentPage,
-      limit: 4,
-      category,
-      sortBy,
-      order,
-      search,
-    },
+    params: paramsForMockapi,
   });
 
   return data;
