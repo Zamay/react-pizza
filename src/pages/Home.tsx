@@ -1,5 +1,5 @@
 import { FC, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
 
@@ -14,10 +14,11 @@ import {
   setCurrentPage,
   setFilters,
 } from '../redux/slices/filterSlice';
-import { fetchPizzas, selectPizzaData } from '../redux/slices/pizzaSlice';
+import { useAppDispatch } from '../redux/store';
+import { fetchPizzas, SearchPizzaParams, selectPizzaData } from '../redux/slices/pizzaSlice';
 
 const Home: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isSearch = useRef(false);
   const isMounted = useRef(false);
@@ -40,13 +41,12 @@ const Home: FC = () => {
     const search = searchValue;
 
     dispatch(
-      // @ts-ignore
       fetchPizzas({
         sortBy,
         order,
         category,
         search,
-        currentPage,
+        currentPage: String(currentPage),
       }),
     );
   };
@@ -68,13 +68,15 @@ const Home: FC = () => {
 
   useEffect(() => {
     if (window.location.search) {
-      const params = qs.parse(window.location.search.substring(1));
-      const sort = sortList.find((obj) => obj.sortProperty === params.sortProperty);
+      const params = qs.parse(window.location.search.substring(1)) as unknown as SearchPizzaParams;
+      const sortObj = sortList.find((obj) => obj.sortProperty === params.sortBy);
 
       dispatch(
         setFilters({
-          ...params,
-          sort: sort || sortList[0],
+          searchValue: params.search,
+          categoryId: Number(params.category),
+          currentPage: Number(params.currentPage),
+          sort: sortObj || sortList[0],
         }),
       );
 
