@@ -1,10 +1,20 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
-import PizzaBlock from '../components/PizzaBlock';
 
-const FullPizza = () => {
-  const [pizza, setPizza] = useState();
+import { PizzaBlock } from '../components/PizzaBlock';
+
+type PizzaBlockProps = {
+  id: string;
+  title: string;
+  price: number;
+  imageUrl: string;
+  sizes: number[];
+  types: number[];
+};
+
+const FullPizza: FC = () => {
+  const [pizza, setPizza] = useState<PizzaBlockProps>();
   const { id } = useParams();
   const navigate = useNavigate();
 

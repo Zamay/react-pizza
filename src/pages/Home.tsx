@@ -1,13 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
 
 import { Skeleton } from '../components/PizzaBlock/Skeleton';
 import { Pagination } from '../components/Pagination';
-import Categories from '../components/Categories';
-import PizzaBlock from '../components/PizzaBlock';
-import Sort, { sortList } from '../components/Sort';
+import { Categories } from '../components/Categories';
+import { PizzaBlock } from '../components/PizzaBlock';
+import { Sort, sortList } from '../components/Sort';
 import {
   selectFilter,
   setCategoryId,
@@ -16,7 +16,7 @@ import {
 } from '../redux/slices/filterSlice';
 import { fetchPizzas, selectPizzaData } from '../redux/slices/pizzaSlice';
 
-function Home() {
+const Home: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isSearch = useRef(false);
@@ -25,11 +25,11 @@ function Home() {
   const { items, status } = useSelector(selectPizzaData);
   const { categoryId, searchValue, currentPage, sort } = useSelector(selectFilter);
 
-  const onChangeCategory = (idx) => {
-    dispatch(setCategoryId(idx));
+  const onChangeCategory = (id: number) => {
+    dispatch(setCategoryId(id));
   };
 
-  const onChangePage = (page) => {
+  const onChangePage = (page: number) => {
     dispatch(setCurrentPage(page));
   };
 
@@ -40,6 +40,7 @@ function Home() {
     const search = searchValue;
 
     dispatch(
+      // @ts-ignore
       fetchPizzas({
         sortBy,
         order,
@@ -91,7 +92,7 @@ function Home() {
     isSearch.current = false;
   }, [categoryId, sort.sortProperty, currentPage, searchValue]);
 
-  const pizzas = items.map((item) => <PizzaBlock key={item.id} {...item} />);
+  const pizzas = items.map((item: any) => <PizzaBlock key={item.id} {...item} />);
   const skeletons = [...new Array(6)].map((_, index) => <Skeleton key={index} />);
 
   return (
@@ -113,6 +114,6 @@ function Home() {
       <Pagination currentPage={currentPage} onChangePage={onChangePage} />
     </div>
   );
-}
+};
 
 export default Home;
