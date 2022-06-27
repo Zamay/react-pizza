@@ -8,14 +8,13 @@ import { Pagination } from '../components/Pagination';
 import { Categories } from '../components/Categories';
 import { PizzaBlock } from '../components/PizzaBlock';
 import { Sort, sortList } from '../components/Sort';
-import {
-  selectFilter,
-  setCategoryId,
-  setCurrentPage,
-  setFilters,
-} from '../redux/slices/filterSlice';
+
 import { useAppDispatch } from '../redux/store';
-import { fetchPizzas, SearchPizzaParams, selectPizzaData } from '../redux/slices/pizzaSlice';
+import { selectPizzaData } from '../redux/pizza/selectors';
+import { selectFilter } from '../redux/filter/selectors';
+import { setCategoryId, setCurrentPage, setFilters } from '../redux/filter/slice';
+import { SearchPizzaParams } from '../redux/pizza/types';
+import { fetchPizzas } from '../redux/pizza/slice';
 
 const Home: FC = () => {
   const dispatch = useAppDispatch();
