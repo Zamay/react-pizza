@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
@@ -9,8 +9,17 @@ import { selectCart } from '../redux/slices/cartSlice';
 export const Header: FC = () => {
   const { items, totalPrice } = useSelector(selectCart);
   const { pathname } = useLocation();
+  const isMounted = useRef(false);
 
   const totalCount = items.reduce((sum: number, item: any) => item.count + sum, 0);
+
+  useEffect(() => {
+    if (isMounted.current) {
+      const json = JSON.stringify(items);
+      localStorage.setItem('cart', json);
+    }
+    isMounted.current = true;
+  }, [items]);
 
   return (
     <div className="header">
