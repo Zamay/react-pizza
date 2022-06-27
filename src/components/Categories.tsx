@@ -1,11 +1,11 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 
 type CategoriesProps = {
   value: number;
   onChangeCategory: (id: number) => void;
 };
 
-export const Categories: FC<CategoriesProps> = ({ value, onChangeCategory }) => {
+export const Categories: FC<CategoriesProps> = memo(({ value, onChangeCategory }) => {
   const categories = ['Все', 'Мясные', 'Вегетарианская', 'Гриль', 'Острые', 'Закрытые'];
 
   return (
@@ -19,4 +19,4 @@ export const Categories: FC<CategoriesProps> = ({ value, onChangeCategory }) => 
       </ul>
     </div>
   );
-};
+});
