@@ -13,8 +13,8 @@ import { useAppDispatch } from '../redux/store';
 import { selectPizzaData } from '../redux/pizza/selectors';
 import { selectFilter } from '../redux/filter/selectors';
 import { setCategoryId, setCurrentPage, setFilters } from '../redux/filter/slice';
-import { SearchPizzaParams } from '../redux/pizza/types';
 import { fetchPizzas } from '../redux/pizza/slice';
+import { FilterSliceState } from '../redux/filter/types';
 
 const Home: FC = () => {
   const dispatch = useAppDispatch();
@@ -51,6 +51,26 @@ const Home: FC = () => {
   };
 
   useEffect(() => {
+    if (window.location.search) {
+      const params = qs.parse(window.location.search.substring(1));
+      const sortObj = sortList.find((obj) => obj.sortProperty === params.sortProperty);
+
+      dispatch(
+        setFilters({
+          searchValue: params.searchValue,
+          categoryId: Number(params.categoryId),
+          currentPage: Number(params.currentPage),
+          sort: sortObj || sortList[0],
+        } as FilterSliceState),
+      );
+
+      isSearch.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
     if (isMounted.current) {
       const params = {
         sortProperty: sort.sortProperty,
@@ -62,35 +82,12 @@ const Home: FC = () => {
       navigate(`/?${queryString}`);
     }
 
-    isMounted.current = true;
-  }, [categoryId, sort.sortProperty, currentPage]);
-
-  useEffect(() => {
-    if (window.location.search) {
-      const params = qs.parse(window.location.search.substring(1)) as unknown as SearchPizzaParams;
-      const sortObj = sortList.find((obj) => obj.sortProperty === params.sortBy);
-
-      dispatch(
-        setFilters({
-          searchValue: params.search,
-          categoryId: Number(params.category),
-          currentPage: Number(params.currentPage),
-          sort: sortObj || sortList[0],
-        }),
-      );
-
-      isSearch.current = true;
-    }
-  }, []);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-
     if (!isSearch.current) {
       getPizzas();
     }
 
     isSearch.current = false;
+    isMounted.current = true;
   }, [categoryId, sort.sortProperty, currentPage, searchValue]);
 
   const pizzas = items.map((item: any) => <PizzaBlock key={item.id} {...item} />);
