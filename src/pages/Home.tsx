@@ -1,23 +1,23 @@
-import { useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { FC, useCallback, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
 
 import { Skeleton } from '../components/PizzaBlock/Skeleton';
 import { Pagination } from '../components/Pagination';
-import Categories from '../components/Categories';
-import PizzaBlock from '../components/PizzaBlock';
-import Sort, { sortList } from '../components/Sort';
-import {
-  selectFilter,
-  setCategoryId,
-  setCurrentPage,
-  setFilters,
-} from '../redux/slices/filterSlice';
-import { fetchPizzas, selectPizzaData } from '../redux/slices/pizzaSlice';
+import { Categories } from '../components/Categories';
+import { PizzaBlock } from '../components/PizzaBlock';
+import { Sort, sortList } from '../components/Sort';
 
-function Home() {
-  const dispatch = useDispatch();
+import { useAppDispatch } from '../redux/store';
+import { selectPizzaData } from '../redux/pizza/selectors';
+import { selectFilter } from '../redux/filter/selectors';
+import { setCategoryId, setCurrentPage, setFilters } from '../redux/filter/slice';
+import { fetchPizzas } from '../redux/pizza/slice';
+import { FilterSliceState } from '../redux/filter/types';
+
+const Home: FC = () => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isSearch = useRef(false);
   const isMounted = useRef(false);
@@ -25,11 +25,11 @@ function Home() {
   const { items, status } = useSelector(selectPizzaData);
   const { categoryId, searchValue, currentPage, sort } = useSelector(selectFilter);
 
-  const onChangeCategory = (idx) => {
-    dispatch(setCategoryId(idx));
-  };
+  const onChangeCategory = useCallback((id: number) => {
+    dispatch(setCategoryId(id));
+  }, []);
 
-  const onChangePage = (page) => {
+  const onChangePage = (page: number) => {
     dispatch(setCurrentPage(page));
   };
 
@@ -45,12 +45,32 @@ function Home() {
         order,
         category,
         search,
-        currentPage,
+        currentPage: String(currentPage),
       }),
     );
   };
 
   useEffect(() => {
+    if (window.location.search) {
+      const params = qs.parse(window.location.search.substring(1));
+      const sortObj = sortList.find((obj) => obj.sortProperty === params.sortProperty);
+
+      dispatch(
+        setFilters({
+          searchValue: params.searchValue,
+          categoryId: Number(params.categoryId),
+          currentPage: Number(params.currentPage),
+          sort: sortObj || sortList[0],
+        } as FilterSliceState),
+      );
+
+      isSearch.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
     if (isMounted.current) {
       const params = {
         sortProperty: sort.sortProperty,
@@ -62,43 +82,22 @@ function Home() {
       navigate(`/?${queryString}`);
     }
 
-    isMounted.current = true;
-  }, [categoryId, sort.sortProperty, currentPage]);
-
-  useEffect(() => {
-    if (window.location.search) {
-      const params = qs.parse(window.location.search.substring(1));
-      const sort = sortList.find((obj) => obj.sortProperty === params.sortProperty);
-
-      dispatch(
-        setFilters({
-          ...params,
-          sort: sort || sortList[0],
-        }),
-      );
-
-      isSearch.current = true;
-    }
-  }, []);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-
     if (!isSearch.current) {
       getPizzas();
     }
 
     isSearch.current = false;
+    isMounted.current = true;
   }, [categoryId, sort.sortProperty, currentPage, searchValue]);
 
-  const pizzas = items.map((item) => <PizzaBlock key={item.id} {...item} />);
+  const pizzas = items.map((item: any) => <PizzaBlock key={item.id} {...item} />);
   const skeletons = [...new Array(6)].map((_, index) => <Skeleton key={index} />);
 
   return (
     <div className="container">
       <div className="content__top">
         <Categories value={categoryId} onChangeCategory={onChangeCategory} />
-        <Sort />
+        <Sort value={sort} />
       </div>
       <h2 className="content__title">Все пиццы</h2>
       {status === 'error' ? (
@@ -113,6 +112,6 @@ function Home() {
       <Pagination currentPage={currentPage} onChangePage={onChangePage} />
     </div>
   );
-}
+};
 
 export default Home;

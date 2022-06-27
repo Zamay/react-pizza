@@ -4,7 +4,7 @@ import './scss/app.scss';
 
 import { NotFound } from './pages/NotFound';
 import { Cart } from './pages/Cart';
-import Header from './components/Header';
+import { Header } from './components/Header';
 import Home from './pages/Home';
 import FullPizza from './pages/FullPizza';
 
